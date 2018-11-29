@@ -1,54 +1,66 @@
 var http = require('http');
-var express = require('express')
+var express = require('express');
 var app = express();
+var request = require("request");
+const appInsights = require("applicationinsights");
+appInsights.setup("1de9ff39-9194-42fb-8a1f-d1989cb6dbab");
+     .setAutoDependencyCorrelation(true)
+    .setAutoCollectRequests(true)
+    .setAutoCollectPerformance(true)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectConsole(true)
+    .setUseDiskRetryCaching(true)
+appInsights.start();
 const assert = require('assert');
 const MongoClient = require('mongodb').MongoClient;
 const mongoose = require('mongoose');
 var mysql = require('mysql');
 var manytimes = 0;
 const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(function(req, res, next) {
+  client.trackNodeHttpRequest({request: req, response: res}); // 
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 app.get('/pooling', function (req, res) {
     res.send('pooling');
     //mlabconnection();
-    httprequest();
-  })
-  app.get('/once', function (req, res) {
-    res.send('once')
-    //connectFirstTime();
-}) 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+    //poolingConnection();
+})
+app.get('/cors', function (req, res) {
+    var options = {
+        method: 'GET',
+        url: 'https://lpspring.azurewebsites.net',
+        headers:
+        {
+            'postman-token': '403fd766-68f7-7a56-f248-caa6b2b49e25',
+            'cache-control': 'no-cache'
+        },
+        form: { req1: 'test' }
+    };
 
-var port = process.env.PORT || 8080;
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+
+        console.log("result from "+ url + body);
+    });
+
+    })
+app.post('/testing', function (req, res) {
+  const body = req.body.req1;
+  res.set('Content-Type', 'text/plain')
+  res.send(`You sent: ${body} to Express`)
+})
+
+var port = process.env.PORT || 9000;
 app.listen(port);
-
-function httprequest()
-{
-var request = require("request");
-
-var options = { method: 'GET',
-  url: 'http://syndy-exports-test.azurewebsites.net/api/Export',
-  qs: 
-   { sortField: 'RetailerName',
-     sortDirection: 'Ascending',
-     pageNumber: '1',
-     pageSize: '20',
-     userOrganisationId: '00000000-0000-0000-0000-000000000000',
-     cultureId: 'nl' },
-  headers: 
-   { 'postman-token': '92ed0c85-24e8-25f1-9117-694ef62e7fa2',
-     'cache-control': 'no-cache' } };
-
-request(options, function (error, response, body) {
-  if (error) throw new Error(error);
-
-  console.log(body);
-});
-
-}
 function mlabconnection()
 {
-    let mongoDB = 'mongodb://limarlow:lipi5961@ds041167.mlab.com:41167/lptestmongodb';
+    let mongoDB = "mongodb://limarlow:lipi5961@ds041167.mlab.com:41167/lptestmongodb";
     // Use connect method to connect to the server
     MongoClient.connect(mongoDB, function (err, client) {
         //assert.equal(null, err);
@@ -172,4 +184,6 @@ function connectFirstTime() {
     };
 };
     console.log("Server running at http://localhost:%d", port);
+
+
 
