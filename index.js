@@ -4,13 +4,7 @@ var app = express();
 var request = require("request");
 const appInsights = require("applicationinsights");
 appInsights.setup("1de9ff39-9194-42fb-8a1f-d1989cb6dbab");
-     .setAutoDependencyCorrelation(true)
-    .setAutoCollectRequests(true)
-    .setAutoCollectPerformance(true)
-    .setAutoCollectExceptions(true)
-    .setAutoCollectDependencies(true)
-    .setAutoCollectConsole(true)
-    .setUseDiskRetryCaching(true)
+     
 appInsights.start();
 const assert = require('assert');
 const MongoClient = require('mongodb').MongoClient;
